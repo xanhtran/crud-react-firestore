@@ -1,7 +1,6 @@
 import { db } from "../firebase-config";
 import {
   collection,
-  getDocs,
   getDoc,
   addDoc,
   updateDoc,
@@ -25,9 +24,6 @@ class RestaurantDataService {
     return deleteDoc(restauDoc);
   };
 
-  getAllRestaurants = () => {
-    return getDocs(restaurantCollectionRef);
-  };
 
   getRestaurant= (id) => {
     const restauDoc = doc(db, "restaurants", id);

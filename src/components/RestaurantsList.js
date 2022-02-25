@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button } from "react-bootstrap";
 import RestaurantDataService from "../services/restaurant.services";
+import {collection, onSnapshot} from 'firebase/firestore';
+import {db} from '../firebase-config';
 
 const RestaurantsList = ({ getRestaurantId }) => {
   const [restaurants, setRestaurants] = useState([]);
@@ -9,10 +11,16 @@ const RestaurantsList = ({ getRestaurantId }) => {
     getRestaurants();
   }, []);
 
+  const restaurantCollectionRef = collection(db, "restaurants");
   const getRestaurants = async () => {
-    const data = await RestaurantDataService.getAllRestaurants();
-    console.log(data.docs);
-    setRestaurants(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    onSnapshot(restaurantCollectionRef, snapshot => {
+      setRestaurants(snapshot.docs.map(doc => {
+          return {
+              id: doc.id,
+              ...doc.data()
+          }
+      }))
+  })   
   };
 
   const deleteHandler = async (id) => {
@@ -35,7 +43,7 @@ const RestaurantsList = ({ getRestaurantId }) => {
             <th>Restaurant Name</th>
             <th>Restaurant Phone</th>
             <th>Restaurant Address</th>
-      
+            <th>Restaurant Image</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -47,6 +55,10 @@ const RestaurantsList = ({ getRestaurantId }) => {
                 <td>{doc.name}</td>
                 <td>{doc.phone}</td>
                 <td>{doc.address}</td>
+                <td>
+                  <img src={doc.image} alt="" style={{height:180, width:180}} />
+                </td>
+
               
                 <td>
                   <Button
